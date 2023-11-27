@@ -1,0 +1,18 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+confluent-kafka = "*"
+configparser = "*"
+flask = "*"
+pytest = "*"
+requests = "*"
+kafka-python = "*"
+cryptography = "*"
+
+[dev-packages]
+
+[requires]
+python_version = "3.11"

@@ -1,0 +1,20 @@
+FROM python:3.8-slim
+
+ENV PYTHONDONTWRITEBYTECODE=1
+
+ENV PYTHONUNBUFFERED=1
+
+COPY requirements.txt .
+RUN python -m pip install -r requirements.txt
+
+COPY drone_ins /drone_ins
+COPY config.ini /drone_ins/
+
+#RUN adduser -u 5678 --disabled-password --gecos "" appuser && chown -R appuser /scada
+#USER appuser
+
+WORKDIR /drone_ins
+ENV FLASK_DEBUG=1
+CMD ["python", "drone_ins.py", "config.ini"]
+
+EXPOSE 6081

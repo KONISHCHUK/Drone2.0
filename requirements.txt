@@ -1,0 +1,7 @@
+confluent-kafka
+configparser
+flask
+pytest
+requests
+kafka-python
+cryptography

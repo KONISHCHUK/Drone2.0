@@ -1,0 +1,196 @@
+version: '3.4'
+
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.2.0
+    container_name: zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+
+  broker:
+    image: confluentinc/cp-kafka:7.2.0
+    container_name: broker
+    ports:
+    # To learn about configuring Kafka for access across networks see
+    # https://www.confluent.io/blog/kafka-client-cannot-connect-to-broker-on-aws-on-docker-etc/
+      - "9092:9092"
+      - "9094:9094"
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_INTERNAL:PLAINTEXT, OUTSIDE:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker:9092,PLAINTEXT_INTERNAL://broker:29092, OUTSIDE://localhost:9094
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+
+  monitor:
+    image: monitor
+    build:
+      context: .
+      dockerfile: ./Dockerfile.monitor
+    depends_on:
+      - broker
+    
+  atm:
+    image: atm
+    build:
+      context: .
+      dockerfile: ./Dockerfile.atm
+    extra_hosts:
+      - "host.docker.internal:172.17.0.1"
+    volumes:
+      - ./storage/:/storage
+    ports:
+      - "6064:6064"
+    depends_on:
+      - broker    
+
+  fps:
+    image: fps
+    build:
+      context: .
+      dockerfile: ./Dockerfile.fps
+    volumes:
+      - ./storage/:/storage
+    ports:
+      - "6065:6065"
+    depends_on:
+      - broker
+
+  drone_battery_control:
+      image: drone_battery_control
+      build:
+        context: .
+        dockerfile: ./Dockerfile.drone_battery_control
+      volumes:
+        - ./storage/:/storage
+      ports:
+        - "6071:6071" 
+      depends_on:
+        - broker
+
+  drone_ccu:
+      image: drone_ccu
+      build:
+        context: .
+        dockerfile: ./Dockerfile.drone_ccu
+      volumes:
+        - ./storage/:/storage
+      ports:
+        - "6072:6072" 
+      depends_on:
+        - broker
+
+  drone_communication_in:
+      image: drone_communication_in
+      build:
+        context: .
+        dockerfile: ./Dockerfile.drone_communication_in
+      volumes:
+        - ./storage/:/storage
+      ports:
+        - "6073:6073"
+      depends_on:
+        - broker 
+
+  drone_communication_out:
+      image: drone_communication_out
+      build:
+        context: .
+        dockerfile: ./Dockerfile.drone_communication_out
+      volumes:
+        - ./storage/:/storage
+      ports:
+        - "6074:6074" 
+      depends_on:
+        - broker
+
+  drone_data_aggregation:
+      image: drone_data_aggregation
+      build:
+        context: .
+        dockerfile: ./Dockerfile.drone_data_aggregation
+      volumes:
+        - ./storage/:/storage
+      ports:
+        - "6075:6075" 
+      depends_on:
+        - broker
+
+  drone_data_saver:
+      image: drone_data_saver
+      build:
+        context: .
+        dockerfile: ./Dockerfile.drone_data_saver
+      volumes:
+        - ./storage/:/storage
+      ports:
+        - "6076:6076" 
+      depends_on:
+        - broker
+
+  drone_diagnostic:
+      image: drone_diagnostic
+      build:
+        context: .
+        dockerfile: ./Dockerfile.drone_diagnostic
+      volumes:
+        - ./storage/:/storage
+      ports:
+        - "6077:6077" 
+      depends_on:
+        - broker
+
+  drone_engines:
+      image: drone_engines
+      build:
+        context: .
+        dockerfile: ./Dockerfile.drone_engines
+      volumes:
+        - ./storage/:/storage
+      ports:
+        - "6078:6078" 
+      depends_on:
+        - broker
+
+  drone_flight_controller:
+      image: drone_flight_controller
+      build:
+        context: .
+        dockerfile: ./Dockerfile.drone_flight_controller
+      volumes:
+        - ./storage/:/storage
+      ports:
+        - "6079:6079" 
+      depends_on:
+        - broker
+
+  drone_gps:
+      image: drone_gps
+      build:
+        context: .
+        dockerfile: ./Dockerfile.drone_gps
+      volumes:
+        - ./storage/:/storage
+      ports:
+        - "6080:6080" 
+      depends_on:
+        - broker
+
+  drone_ins:
+      image: drone_ins
+      build:
+        context: .
+        dockerfile: ./Dockerfile.drone_ins
+      volumes:
+        - ./storage/:/storage
+      ports:
+        - "6081:6081"
+      depends_on:
+        - broker 
+    
+  
